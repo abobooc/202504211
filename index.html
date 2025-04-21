@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sketch</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      #canvas-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1; /* 確保海草動畫在後面 */
+        pointer-events: none; /* 讓鼠標事件穿透到其他元素 */
+      }
+      #menu {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 4; /* 確保菜單始終在最上層 */
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #menu ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      #menu li {
+        margin: 5px 0;
+      }
+      #menu a {
+        text-decoration: none;
+        color: #333;
+        cursor: pointer;
+      }
+      #about-page, #quiz-page, #tutorial-page {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #add8e6; /* 淺藍色背景 */
+        z-index: 3; /* 確保在菜單下方 */
+      }
+      #about-page iframe, #quiz-page iframe, #tutorial-page iframe {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+        width: 80%;
+        height: 80%;
+        border: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="menu">
+      <ul>
+        <li><a href="#home" onclick="showHome()">首頁</a></li>
+        <li><a href="#about" onclick="showAbout()">自我介紹</a></li>
+        <li>
+          <a href="#portfolio" onclick="togglePortfolio()">作品集</a>
+          <ul id="portfolio-submenu" style="display: none;">
+            <li><a href="#project1" onclick="showProject('project1')">作品1</a></li>
+            <li><a href="#project2" onclick="showProject('project2')">作品2</a></li>
+            <li><a href="#project3" onclick="showProject('project3')">作品3</a></li>
+            <li><a href="#project4" onclick="showProject('project4')">作品4</a></li>
+            <li><a href="#notes" onclick="showProject('notes')">期中筆記</a></li>
+          </ul>
+        </li>
+        <li><a href="#quiz" onclick="showQuiz()">測驗卷</a></li>
+        <li><a href="#tutorial" onclick="showTutorial()">教學影片</a></li>
+        <li><a href="#mystery" onclick="showMystery()">莫?</a></li>
+      </ul>
+    </div>
+    <div id="canvas-container"></div>
+    <div id="about-page" style="display: none;">
+      <iframe src="https://lit.link/aboboc" style="width: 80%; height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;"></iframe>
+    </div>
+    <div id="quiz-page" style="display: none;">
+      <iframe src="https://abobooc.github.io/20250420/" style="width: 80%; height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;"></iframe>
+    </div>
+    <div id="tutorial-page" style="display: none;">
+      <iframe src="https://cfchen58.synology.me/%E7%A8%8B%E5%BC%8F%E8%A8%AD%E8%A8%882024/B2/week8/20250407_101522.mp4" style="width: 80%; height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;"></iframe>
+    </div>
+    <div id="project-page" style="display: none;">
+      <iframe id="project-iframe" src="" style="width: 80%; height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;"></iframe>
+    </div>
+    <div id="mystery-page" style="display: none;">
+      <iframe id="mystery-iframe" src="" style="width: 80%; height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: none;"></iframe>
+    </div>
+    <script src="sketch.js"></script>
+    <script>
+      function showAbout() {
+        document.getElementById('about-page').style.display = 'block';
+        document.getElementById('quiz-page').style.display = 'none';
+        document.getElementById('tutorial-page').style.display = 'none';
+        document.getElementById('project-page').style.display = 'none';
+        hidePortfolioSubmenu();
+      }
+
+      function showHome() {
+        location.reload(); // 重新整理頁面
+      }
+
+      function showQuiz() {
+        document.getElementById('quiz-page').style.display = 'block';
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('tutorial-page').style.display = 'none';
+        document.getElementById('project-page').style.display = 'none';
+        hidePortfolioSubmenu();
+      }
+
+      function showTutorial() {
+        document.getElementById('tutorial-page').style.display = 'block';
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('quiz-page').style.display = 'none';
+        document.getElementById('project-page').style.display = 'none';
+        document.getElementById('canvas-container').style.display = 'block'; // 确保海草动画在其他页面显示
+        hidePortfolioSubmenu();
+      }
+
+      function showProject(project) {
+        const projectLinks = {
+          project1: "https://abobooc.github.io/2025week1/", // 作品1的链接
+          project2: "https://abobooc.github.io/week1-2/", // 作品2的链接
+          project3: "https://abobooc.github.io/20250303/", // 作品3的链接
+          project4: "https://abobooc.github.io/20250317-1/", // 作品4的链接
+          notes: "https://hackmd.io/@bobooo/Bys80ifkxg" // 更新期中笔记的链接
+        };
+        const projectIframe = document.getElementById('project-iframe');
+        const projectPage = document.getElementById('project-page');
+
+        projectIframe.src = projectLinks[project];
+
+        if (project === 'project1') {
+          projectPage.style.backgroundColor = '#e6e6fa'; // 设置作品1的背景颜色为浅紫色
+        } else {
+          projectPage.style.backgroundColor = ''; // 恢复默认背景颜色
+        }
+
+        projectPage.style.display = 'block';
+        projectPage.style.zIndex = '5'; // 设置图层为最上层
+        document.getElementById('canvas-container').style.display = 'none'; // 隐藏海草动画
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('quiz-page').style.display = 'none';
+        document.getElementById('tutorial-page').style.display = 'none';
+        hidePortfolioSubmenu();
+      }
+
+      function togglePortfolio() {
+        const submenu = document.getElementById('portfolio-submenu');
+        if (submenu.style.display === 'none') {
+          submenu.style.display = 'block';
+        } else {
+          submenu.style.display = 'none';
+        }
+      }
+
+      function hidePortfolioSubmenu() {
+        const submenu = document.getElementById('portfolio-submenu');
+        submenu.style.display = 'none';
+      }
+      function showMystery() {
+    // 设置 iframe 的 src
+    const mysteryIframe = document.getElementById('mystery-iframe');
+    mysteryIframe.src = "https://youtube.com/shorts/y_GwZr94UjM?si=m-mjxSmTkr2lq3wi";
+
+    // 显示 mystery-page
+    document.getElementById('mystery-page').style.display = 'block';
+
+    // 隐藏其他页面
+    document.getElementById('about-page').style.display = 'none';
+    document.getElementById('quiz-page').style.display = 'none';
+    document.getElementById('tutorial-page').style.display = 'none';
+    document.getElementById('project-page').style.display = 'none';
+    document.getElementById('canvas-container').style.display = 'none'; // 隐藏海草动画
+  }
+    </script>
+    <script>
+      function showHome() {
+        location.reload(); // 重新整理頁面
+      }
+    </script>
+  </body>
+</html>
